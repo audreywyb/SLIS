@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructional Designer Mega-Prompt Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .form-section { @apply mb-6 p-4 border rounded-lg bg-gray-50; }
+        label { @apply block text-sm font-semibold mb-2 text-gray-700; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 md:p-8">
+    <main class="max-w-4xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden">
+        <header class="bg-blue-800 text-white p-6">
+            <h1 class="text-2xl font-bold">Instructional Designer Mega-Prompt Generator</h1>
+            <p class="text-blue-100">Configure parameters to generate an expert-level, accessible Mega-Prompt.</p>
+        </header>
+
+        <div class="p-6">
+            <form id="generatorForm" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-section">
+                        <label for="topic">Topic</label>
+                        <input type="text" id="topic" class="w-full p-2 border rounded" placeholder="e.g., Collection Development Policies" required>
+                    </div>
+                    <div class="form-section">
+                        <label for="duration">Lesson Duration</label>
+                        <input type="text" id="duration" class="w-full p-2 border rounded" placeholder="e.g., 60 minutes" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-section">
+                        <label for="domain">AASL/ALA Domain</label>
+                        <select id="domain" class="w-full p-2 border rounded">
+                            <option>Learner</option>
+                            <option>Leader</option>
+                            <option>Instructional Partner</option>
+                            <option>Information Specialist</option>
+                            <option>Program Administrator</option>
+                        </select>
+                    </div>
+                    <div class="form-section">
+                        <label for="learnerStandard">AASL Learner Standard</label>
+                        <select id="learnerStandard" class="w-full p-2 border rounded">
+                            <option>I. Inquire</option>
+                            <option>II. Include</option>
+                            <option>III. Collaborate</option>
+                            <option>IV. Curate</option>
+                            <option>V. Explore</option>
+                            <option>VI. Engage</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <label for="courseObjective">Course Learning Objective</label>
+                    <select id="courseObjective" class="w-full p-2 border rounded">
+                        <option>Analyze and apply collection development policies to school library settings.</option>
+                        <option>Design and implement inquiry-based learning experiences.</option>
+                        <option>Evaluate information literacy instruction models.</option>
+                        <option>Develop strategies for collaborative library partnerships.</option>
+                    </select>
+                </div>
+
+                <div class="form-section">
+                    <label>Interactive Preferences (Select all that apply)</label>
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                        <label class="flex items-center"><input type="checkbox" name="pref" value="Flashcards" class="mr-2"> Flashcards</label>
+                        <label class="flex items-center"><input type="checkbox" name="pref" value="Diagram/Visual" class="mr-2"> Diagram/Visual</label>
+                        <label class="flex items-center"><input type="checkbox" name="pref" value="Sorting Interaction" class="mr-2"> Sorting Interaction</label>
+                        <label class="flex items-center"><input type="checkbox" name="pref" value="Branching Scenario" class="mr-2"> Branching Scenario</label>
+                    </div>
+                </div>
+
+                <button type="button" onclick="generatePrompt()" class="w-full bg-blue-800 text-white py-3 rounded-lg font-bold hover:bg-blue-900 transition">
+                    Generate Mega-Prompt
+                </button>
+            </form>
+
+            <div id="outputArea" class="hidden mt-8">
+                <label class="text-lg font-bold text-gray-800 mb-2">Your Generated Mega-Prompt:</label>
+                <textarea id="result" class="w-full h-96 p-4 bg-gray-900 text-green-400 font-mono text-sm rounded-lg" readonly></textarea>
+                <button onclick="copyToClipboard()" class="mt-4 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Copy to Clipboard</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function generatePrompt() {
+            const topic = document.getElementById('topic').value;
+            const duration = document.getElementById('duration').value;
+            const domain = document.getElementById('domain').value;
+            const standard = document.getElementById('learnerStandard').value;
+            const objective = document.getElementById('courseObjective').value;
+            const prefs = Array.from(document.querySelectorAll('input[name="pref"]:checked')).map(el => el.value);
+
+            const prompt = `# Instructional Designer Mega-Prompt: ${topic}
+
+## Role & Context
+You are an expert Instructional Designer specializing in Library and Information Science (LIS) pedagogy. Your audience consists of graduate students preparing for roles as School Library Media Specialists. Your goal is to create a single-file, interactive, and reflective learning module that scaffolds complex theory into actionable practice.
+
+## User Configuration
+- **Topic:** ${topic}
+- **Lesson Duration:** ${duration}
+- **AASL/ALA Domain:** ${domain}
+- **AASL Learner Standard:** ${standard}
+- **Course Learning Objective:** ${objective}
+- **Interactive Preferences:** ${prefs.join(', ')}
+
+## Development Guidelines (CRITICAL)
+1. **Theoretical Scaffolding:** Provide a high-level theoretical framework relevant to the topic. Link directly to the selected AASL/ALA Domain and ${standard}.
+2. **Interactive Elements:** Integrate the selected preferences (${prefs.join(', ')}) using embedded SVG, Tailwind CSS, or clean JavaScript logic.
+3. **Constructive Practice:** Develop a scenario-based interaction where students apply their knowledge.
+4. **Accessibility (WCAG 2.1 AA Compliance - MANDATORY):** 
+   - All interactive elements MUST be keyboard navigable.
+   - Use high-contrast color schemes (WCAG 2.1 AA compliant contrast ratios).
+   - Provide proper ARIA labels and roles for all custom interactive components (flashcards, sorting, etc.).
+   - Ensure a logical tab order and focus management for all interactive states.
+   - Implement persistent, accessible Top-Level Navigation (e.g., semantic <nav> element with clear landmarks and skip links) allowing users to easily navigate between sections of the module.
+5. **Technical Output:** You MUST generate a single-file .html document that contains all HTML, Tailwind CSS, and JavaScript required to run the lesson. Do not use external CSS or JS files.
+
+## Workflow Phases
+Follow these phases to generate the content:
+1. **Theoretical Scaffolding:** Lay the foundation.
+2. **Conceptual Modeling:** Create the interactive element.
+3. **Constructive Practice:** Apply the knowledge.
+4. **Branching Scenarios:** Create a 3-step decision-making reflective exercise.
+5. **Reflective Synthesis:** Conclude with a meta-cognitive prompt.`;
+
+            document.getElementById('result').value = prompt;
+            document.getElementById('outputArea').classList.remove('hidden');
+        }
+
+        function copyToClipboard() {
+            const copyText = document.getElementById("result");
+            copyText.select();
+            document.execCommand("copy");
+        }
+    </script>
+</body>
+</html>
