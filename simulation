@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Library Collaboration Simulation</title>
+    <!-- Using the standard highly-stable Tailwind CSS compiler CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        [v-cloak] { display: none; }
+        .transition-all { transition: all 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <header class="bg-gradient-to-r from-blue-800 to-indigo-900 text-white shadow-md border-b-4 border-amber-500">
+        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <span class="text-xs font-semibold tracking-widest uppercase bg-amber-500 text-slate-950 px-2 py-1 rounded">Interactive Learning Module</span>
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight mt-1">Collaborative Instructional Leadership</h1>
+                <p class="text-slate-200 text-sm mt-1">Applying the 2019 ALA/AASL/CAEP School Librarian Preparation Standards</p>
+            </div>
+            <div class="text-right border-t md:border-t-0 border-slate-700 pt-3 md:pt-0 w-full md:w-auto">
+                <p class="text-xs text-slate-300 uppercase tracking-wider">Practicum Preparation</p>
+                <p class="text-amber-400 font-medium text-sm md:text-base">School Library Media Program</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-8 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <section class="lg:col-span-7 xl:col-span-8 flex flex-col gap-6">
+            
+            <!-- Welcome Card -->
+            <div id="welcome-card" class="bg-white rounded-xl shadow-md border border-slate-200 p-6 md:p-8 transition-all">
+                <h2 class="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <span>👋</span> Welcome, Future School Librarians!
+                </h2>
+                <div class="space-y-4 text-slate-600 text-sm leading-relaxed">
+                    <p>
+                        Hello colleagues! Welcome back to our interactive lab space. This scenario-driven module challenges you to think on your feet as an instructional partner in the school building.
+                    </p>
+                    <p>
+                        <strong>How this run works:</strong> To master a professional domain on your dashboard tracker, you must successfully identify the optimal leadership response. If you select a path that isn't quite aligned with our standards, the progress bar won't fill. Instead, the simulation will seamlessly generate an alternative scenario for that exact domain so you can try a fresh approach!
+                    </p>
+                </div>
+                <div class="mt-8 pt-6 border-t border-slate-100 flex justify-end">
+                    <button onclick="SimulationEngine.start()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition-all cursor-pointer inline-flex items-center gap-2">
+                        Start the Simulation &rarr;
+                    </button>
+                </div>
+            </div>
+
+            <!-- Active Play Card -->
+            <div id="scenario-card" class="hidden bg-white rounded-xl shadow-xl border-2 border-indigo-100 p-6 md:p-8 flex flex-col gap-6 transition-all ring-4 ring-slate-50">
+                
+                <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                    <span id="scenario-step-indicator" class="text-xs font-bold tracking-widest uppercase text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+                        Domain Progressing
+                    </span>
+                    <span id="remediation-badge" class="hidden text-xs font-bold tracking-widest uppercase text-amber-600 bg-amber-50 px-3 py-1 rounded-full animate-bounce">
+                        🔄 Practice Scenario
+                    </span>
+                </div>
+
+                <!-- Boxed Scenario Content -->
+                <div class="bg-slate-50 border border-slate-200 rounded-lg p-6">
+                    <h3 id="scenario-title" class="text-xl font-bold text-slate-900 mb-3">
+                        Loading Scenario...
+                    </h3>
+                    <p id="scenario-description" class="text-slate-600 text-sm leading-relaxed mb-4">
+                        Loading situation details...
+                    </p>
+                </div>
+
+                <div class="bg-slate-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Foundational Research & Standards</h4>
+                    <p id="scenario-citation" class="text-xs text-slate-600 leading-relaxed">
+                        Loading reading and standard connections...
+                    </p>
+                </div>
+
+                <div class="mt-2">
+                    <p class="text-sm font-semibold text-slate-900 mb-3">How do you respond as an instructional leader?</p>
+                    <div id="choices-container" class="flex flex-col gap-3">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Finish Card -->
+            <div id="results-card" class="hidden bg-white rounded-xl shadow-md border-2 border-emerald-500 p-6 md:p-8 flex flex-col gap-6 transition-all">
+                <div class="text-center">
+                    <span class="text-4xl">🎉</span>
+                    <h2 class="text-2xl font-bold text-slate-900 mt-2">Magnificent Work!</h2>
+                    <p class="text-slate-500 text-sm mt-1">You successfully navigated and unlocked all standard requirements!</p>
+                </div>
+
+                <div class="space-y-4 text-slate-600 text-sm leading-relaxed border-t border-b border-slate-100 py-4 my-2">
+                    <p>
+                        By working through these scenarios—and persisting through alternative situations when needed—you've proven that you can adapt your instructional design and leadership strategy to any building hurdle.
+                    </p>
+                </div>
+
+                <div class="flex justify-center">
+                    <button onclick="SimulationEngine.reset()" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold px-6 py-3 rounded-lg shadow transition-all cursor-pointer">
+                        Try the Simulation Again
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Sidebar / Visual Tracker -->
+        <section class="lg:col-span-5 xl:col-span-4 flex flex-col gap-6">
+            <div class="bg-white rounded-xl shadow-md border border-slate-200 p-6 sticky top-8 flex flex-col gap-4">
+                <div>
+                    <h2 class="text-md font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                        <span>🗺️</span> Professional Domain Tracker
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Bars will update when an optimal approach is selected.</p>
+                </div>
+
+                <div class="bg-slate-900 rounded-lg p-4 shadow-inner flex flex-col gap-4">
+                    <svg viewBox="0 0 400 340" class="w-full h-auto text-white select-none">
+                        <g opacity="0.05">
+                            <line x1="0" y1="60" x2="400" y2="60" stroke="white" stroke-width="1"/>
+                            <line x1="0" y1="120" x2="400" y2="120" stroke="white" stroke-width="1"/>
+                            <line x1="0" y1="180" x2="400" y2="180" stroke="white" stroke-width="1"/>
+                            <line x1="0" y1="240" x2="400" y2="240" stroke="white" stroke-width="1"/>
+                            <line x1="0" y1="300" x2="400" y2="300" stroke="white" stroke-width="1"/>
+                        </g>
+
+                        <g id="node-D1" class="transition-all duration-500" opacity="0.3">
+                            <rect x="15" y="15" width="370" height="46" rx="6" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                            <rect id="fill-D1" x="15" y="15" width="0" height="46" rx="6" fill="#3b82f6" opacity="0.2" class="transition-all duration-700"/>
+                            <text x="30" y="42" font-size="13" font-weight="bold" fill="#94a3b8" id="text-D1-title">🧠 Domain 1: The Learner & Learning</text>
+                            <circle id="check-D1" cx="360" cy="38" r="8" fill="#475569"/>
+                            <path d="M356 38 l3 3 l5 -6" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                        </g>
+
+                        <g id="node-D2" class="transition-all duration-500" opacity="0.3">
+                            <rect x="15" y="75" width="370" height="46" rx="6" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                            <rect id="fill-D2" x="15" y="75" width="0" height="46" rx="6" fill="#10b981" opacity="0.2" class="transition-all duration-700"/>
+                            <text x="30" y="102" font-size="13" font-weight="bold" fill="#94a3b8" id="text-D2-title">📋 Domain 2: Planning for Instruction</text>
+                            <circle id="check-D2" cx="360" cy="98" r="8" fill="#475569"/>
+                            <path d="M356 98 l3 3 l5 -6" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                        </g>
+
+                        <g id="node-D3" class="transition-all duration-500" opacity="0.3">
+                            <rect x="15" y="135" width="370" height="46" rx="6" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                            <rect id="fill-D3" x="15" y="135" width="0" height="46" rx="6" fill="#f59e0b" opacity="0.2" class="transition-all duration-700"/>
+                            <text x="30" y="162" font-size="13" font-weight="bold" fill="#94a3b8" id="text-D3-title">📚 Domain 3: Knowledge & Application</text>
+                            <circle id="check-D3" cx="360" cy="158" r="8" fill="#475569"/>
+                            <path d="M356 158 l3 3 l5 -6" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                        </g>
+
+                        <g id="node-D4" class="transition-all duration-500" opacity="0.3">
+                            <rect x="15" y="195" width="370" height="46" rx="6" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                            <rect id="fill-D4" x="15" y="195" width="0" height="46" rx="6" fill="#8b5cf6" opacity="0.2" class="transition-all duration-700"/>
+                            <text x="30" y="222" font-size="13" font-weight="bold" fill="#94a3b8" id="text-D4-title">🌐 Domain 4: Organization & Access</text>
+                            <circle id="check-D4" cx="360" cy="218" r="8" fill="#475569"/>
+                            <path d="M356 218 l3 3 l5 -6" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                        </g>
+
+                        <g id="node-D5" class="transition-all duration-500" opacity="0.3">
+                            <rect x="15" y="255" width="370" height="46" rx="6" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                            <rect id="fill-D5" x="15" y="255" width="0" height="46" rx="6" fill="#ec4899" opacity="0.2" class="transition-all duration-700"/>
+                            <text x="30" y="282" font-size="13" font-weight="bold" fill="#94a3b8" id="text-D5-title">📣 Domain 5: Leadership & Advocacy</text>
+                            <circle id="check-D5" cx="360" cy="278" r="8" fill="#475569"/>
+                            <path d="M356 278 l3 3 l5 -6" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                        </g>
+                    </svg>
+
+                    <div class="border-t border-slate-800 pt-3 flex justify-between text-xs text-slate-400">
+                        <span>Domains Mastered: <strong id="unlocked-count" class="text-white">0</strong>/5</span>
+                        <span id="simulation-status-text" class="text-amber-400 animate-pulse font-mono">READY TO BEGIN</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 text-xs py-6 border-t border-slate-800 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p>&copy; 2026 Higher Education Preparation Program Frameworks.</p>
+        </div>
+    </footer>
+
+    <script>
+        /**
+         * Adaptive Scenario Database
+         * Contains structural arrays for primary and repeating remediation streams.
+         */
+        const SCENARIOS_POOL = {
+            D1: [
+                {
+                    id: "D1-Primary",
+                    domain: "D1",
+                    color: "#3b82f6",
+                    standardRef: "Standard 1: The Learner and Learning (Component 1.1)",
+                    title: "Scenario 1: Partnering with the Social Studies Department",
+                    description: "You notice the high school Social Studies department relies heavily on standard textbooks for their research units, leaving students disconnected from historical inquiry. When you offer to share your library's primary source databases, the department chair says, 'Thanks, but our curriculum pacing guide is already completely locked in.'",
+                    citationUrl: "https://scholarworks.sjsu.edu/slw/vol23/iss1/3/",
+                    citationText: "Kachel, D. E. (2017). The school librarian’s role in professional development. School Libraries Worldwide, 23(1), 34-47.",
+                    choices: [
+                        { text: "Design a brief, engaging mini-lesson using primary sources that fits directly into their next required unit, and offer to co-teach it to lighten their grading load.", feedback: "Wonderful choice! Meeting teachers exactly where they are and minimizing their workload is a proven way to build lasting instructional relationships.", isOptimal: true },
+                        { text: "Send a friendly email containing login details for the new historical databases alongside a pre-made tutorial video so teachers can explore it on their own time.", feedback: "A bit passive. Resource lists rarely transform classroom teaching habits without direct personal collaboration. Let's look at another angle to master this domain.", isOptimal: false },
+                        { text: "Set up an attractive historical primary source display right by the library entrance to spark student interest independently during study hall periods.", feedback: "Visually creative, but it leaves collaboration on the table. This bypasses the department instead of addressing the curriculum puzzle.", isOptimal: false },
+                        { text: "Bring the issue to the assistant principal to suggest making library database integration a mandatory goal for next semester.", feedback: "Leaning on top-down requirements can strain peer relations. Let's look at a grassroots teamwork alternative.", isOptimal: false }
+                    ]
+                },
+                {
+                    id: "D1-Remediation",
+                    domain: "D1",
+                    color: "#3b82f6",
+                    standardRef: "Standard 1: The Learner and Learning (Component 1.2)",
+                    title: "Practice Scenario: Accommodating Diverse Learning Needs",
+                    description: "A 4th-grade teacher is starting a project on state geography but is worried about several English Language Learners who struggle to decode text-heavy reference websites during research times.",
+                    citationUrl: "https://scholarworks.sjsu.edu/slw/vol23/iss1/3/",
+                    citationText: "Kachel, D. E. (2017). The school librarian’s role in professional development. School Libraries Worldwide, 23(1), 34-47.",
+                    choices: [
+                        { text: "Co-curate an interactive digital landing page containing visual text-to-speech tools, dual-language databases, and leveled reading materials, then push into the room to teach alongside them.", feedback: "Spot on! This directly responds to learning differences with scaffolded access models.", isOptimal: true },
+                        { text: "Advise the teacher to send struggling readers down to the library space for independent computer work while the rest of the class finishes the primary lesson.", feedback: "Separating students can lead to feelings of exclusion. Try to design inclusive spaces.", isOptimal: false },
+                        { text: "Hand the instructor a stack of physical geography picture books from the library shelves to put in the back corner of their classroom.", feedback: "Books help, but it lacks the supportive structure needed to master digital database search strategies.", isOptimal: false },
+                        { text: "Suggest the teacher contact the school's reading interventionist for a customized pull-out strategy.", feedback: "As a professional leader, you have unique data resources to co-teach these skills alongside the classroom instructor.", isOptimal: false }
+                    ]
+                }
+            ],
+            D2: [
+                {
+                    id: "D2-Primary",
+                    domain: "D2",
+                    color: "#10b981",
+                    standardRef: "Standard 2: Planning for Instruction (Component 2.1)",
+                    title: "Scenario 2: Cross-Disciplinary Science and Literacy Integration",
+                    description: "The 6th-grade Science team is launching an environmental ecology project. While they have built excellent data collection sheets, they haven't included lessons on source evaluation or identifying scientific misinformation.",
+                    citationUrl: "https://www.proquest.com/openview/12d5b6f005b871cdaeaee0bc43f076b6/1",
+                    citationText: "Moreillon, J. (2018). Maximizing the school librarian’s role in professional development. Knowledge Quest, 46(4), 18-23.",
+                    choices: [
+                        { text: "Work together with the team to co-design a shared grading rubric that looks at both ecosystem data and digital source validation, then schedule co-taught research blocks.", feedback: "Outstanding work! This makes information literacy a vital part of the project curriculum.", isOptimal: true },
+                        { text: "Send a text link to a generic scientific website evaluation tool through the school's messaging app.", feedback: "Dropping a resource link via chat doesn't integrate media literacy skills into the core science activity.", isOptimal: false },
+                        { text: "Offer to host the science classes in the library so they can work quietly on their charts while you monitor the front desk.", feedback: "This makes the library a convenient workspace, but it misses the chance to teach.", isOptimal: false },
+                        { text: "Gather a broad collection of science books and ecology magazines, put them on a mobile book cart, and deliver them to classrooms.", feedback: "Providing books is useful, but it stops short of true co-planned instructional development.", isOptimal: false }
+                    ]
+                },
+                {
+                    id: "D2-Remediation",
+                    domain: "D2",
+                    color: "#10b981",
+                    standardRef: "Standard 2: Planning for Instruction (Component 2.3)",
+                    title: "Practice Scenario: Crafting Clear Objectives",
+                    description: "You are attempting to plan a digital safety lesson with a math teacher working on data sets, but they are focused purely on computational numbers and see media evaluation as outside their scope.",
+                    citationUrl: "https://www.proquest.com/openview/12d5b6f005b871cdaeaee0bc43f076b6/1",
+                    citationText: "Moreillon, J. (2018). Maximizing the school librarian’s role in professional development. Knowledge Quest, 46(4), 18-23.",
+                    choices: [
+                        { text: "Demonstrate how analyzing skewed data graphs from social media platforms fits perfectly into their data interpretation standards, and write a joint learning target.", feedback: "Brilliant. Linking library literacy targets to their core math metrics secures real collaboration.", isOptimal: true },
+                        { text: "Offer to take over the class for a day to teach safety rules while they catch up on standard test grading.", feedback: "This is service babysitting, not instructional design planning.", isOptimal: false },
+                        { text: "Send a link to a mathematical ethics website and suggest they try displaying it at the start of class.", feedback: "A resource link does not substitute for structured lesson planning.", isOptimal: false },
+                        { text: "Ask the principal to explain the importance of digital literacy targets during the next full staff development assembly.", feedback: "Building mutual pedagogical connections directly with peers is far more effective.", isOptimal: false }
+                    ]
+                }
+            ],
+            D3: [
+                {
+                    id: "D3-Primary",
+                    domain: "D3",
+                    color: "#f59e0b",
+                    standardRef: "Standard 3: Knowledge and Application of Content (Component 3.3)",
+                    title: "Scenario 3: Curating Inclusive Materials with the ELA Committee",
+                    description: "During a middle school English Language Arts planning meeting, you see that the proposed reading lists lack diverse cultural viewpoints, indigenous stories, and contemporary formats.",
+                    citationUrl: "https://journals.tdl.org/jalis/index.php/jalis/article/view/7091",
+                    citationText: "Schultz-Jones, B., & Ledbetter, S. (2019). Information literacy and the school library media specialist. Journal of Education for Library and Information Science, 60(3), 201-215.",
+                    choices: [
+                        { text: "Use your library collection analysis data to build and share a balanced reading matrix that matches current Lexile levels with rich, inclusive alternative texts.", feedback: "Spectacular leadership! You are demonstrating great command of collection design.", isOptimal: true },
+                        { text: "Set up a standalone 'Diverse Voices' book display in the library without suggesting modifications to the committee's list.", feedback: "While eye-catching, this keeps inclusive literature on the sidelines rather than weaving it into the core curriculum.", isOptimal: false },
+                        { text: "Politely mention during the meeting that the current list feels a bit dated and offer to find some new titles if individual teachers request them.", feedback: "A bit too passive. Taking the initiative to proactively share curated, data-supported alternatives is much more impactful.", isOptimal: false },
+                        { text: "Recommend that the ELA department purchase a commercial inclusive book package from a major distributor.", feedback: "This doesn't utilize your unique expertise as a curator. It shifts the work and budget burden back to teachers.", isOptimal: false }
+                    ]
+                },
+                {
+                    id: "D3-Remediation",
+                    domain: "D3",
+                    color: "#f59e0b",
+                    standardRef: "Standard 3: Knowledge and Application (Component 3.1)",
+                    title: "Practice Scenario: Integrating Information Literacy Models",
+                    description: "Students are starting a major research paper but are turning in messy pages filled with copied paragraphs and struggle to format their citations correctly.",
+                    citationUrl: "https://journals.tdl.org/jalis/index.php/jalis/article/view/7091",
+                    citationText: "Schultz-Jones, B., & Ledbetter, S. (2019). Information literacy and the school library media specialist. Journal of Education for Library and Information Science, 60(3), 201-215.",
+                    choices: [
+                        { text: "Co-teach an active inquiry unit utilizing an established information framework (like guided inquiry design) to teach ethical paraphrasing alongside content steps.", feedback: "Perfect! Integrating an explicit research framework inside the lesson content cures plagiarism at the root.", isOptimal: true },
+                        { text: "Print out citation cheat sheets and tape them to the library tables for reference.", feedback: "Static handouts rarely fix fundamental conceptual gaps in academic integrity.", isOptimal: false },
+                        { text: "Tell the teachers to deduct percentage points from any final project that fails to show proper work citations.", feedback: "Punitive actions do not replace active instruction. Teach the process!", isOptimal: false },
+                        { text: "Run a short database presentation at the front of the room while students look at their phones.", feedback: "Passive listening is less effective than embedded, hands-on guided inquiry modeling.", isOptimal: false }
+                    ]
+                }
+            ],
+            D4: [
+                {
+                    id: "D4-Primary",
+                    domain: "D4",
+                    color: "#8b5cf6",
+                    standardRef: "Standard 4: Organization and Access (Component 4.2)",
+                    title: "Scenario 4: Smoothing Out Digital Equity Gaps",
+                    description: "Your school launches a new 1:1 tablet program, but your multilingual learners and lower-income students are having a hard time navigating the complex online library catalog to find digital audiobooks.",
+                    citationUrl: "https://scholarworks.sjsu.edu/slw/vol22/iss1/5/",
+                    citationText: "Johnston, M. P. (2016). The school librarian as an instructional leader. School Libraries Worldwide, 22(1), 55-71.",
+                    choices: [
+                        { text: "Host an informal evening drop-in event for families and share a mobile-friendly, multilingual digital guide with clear visual icons.", feedback: "Incredibly impactful! You are bringing down systemic barriers to information access.", isOptimal: true },
+                        { text: "Upload a comprehensive, text-heavy English PDF user guide to the school's website homepage.", feedback: "Long, text-heavy guides in a single language often create more hurdles for multilingual families.", isOptimal: false },
+                        { text: "Ask the school's technology department to reset all student passwords and simplify the login page layout.", feedback: "While simpler logins help, it doesn't solve the underlying navigation difficulties.", isOptimal: false },
+                        { text: "Set up a student tech-expert help desk in the library during lunch hours.", feedback: "Peer support is wonderful, but it avoids systematically improving access across the board.", isOptimal: false }
+                    ]
+                },
+                {
+                    id: "D4-Remediation",
+                    domain: "D4",
+                    color: "#8b5cf6",
+                    standardRef: "Standard 4: Organization and Access (Component 4.1)",
+                    title: "Practice Scenario: Managing Flexible Access Schedules",
+                    description: "The building principal wants to lock the library down into a rigid, weekly classroom drop-off rotation schedule, eliminating open research availability for middle-school project teams.",
+                    citationUrl: "https://scholarworks.sjsu.edu/slw/vol22/iss1/5/",
+                    citationText: "Johnston, M. P. (2016). The school librarian as an instructional leader. School Libraries Worldwide, 22(1), 55-71.",
+                    choices: [
+                        { text: "Present a data-backed scheduling proposal demonstrating how a hybrid flexible access system allows for fixed storytimes while maintaining open blocks for active research needs.", feedback: "Excellent. Championing flexible scheduling is essential for protecting systemic equitable access.", isOptimal: true },
+                        { text: "Accept the schedule change quietly and use the newly locked blocks to catch up on physical book processing.", feedback: "This decreases library impact. We must advocate for open access points for all learners.", isOptimal: false },
+                        { text: "Complain to classroom teachers in the lunchroom, hoping they will ask administration to change it.", feedback: "Indirect complaints run counter to professional leadership models. Always bring solutions directly to management with data.", isOptimal: false },
+                        { text: "Post a sign on the main double doors declaring the library closed during administrative inventory checks.", feedback: "This reduces student access further. Aim for collaborative compromise.", isOptimal: false }
+                    ]
+                }
+            ],
+            D5: [
+                {
+                    id: "D5-Primary",
+                    domain: "D5",
+                    color: "#ec4899",
+                    standardRef: "Standard 5: Leadership, Advocacy, and Profession (Component 5.4)",
+                    title: "Scenario 5: Advocating with Data to the Principal",
+                    description: "Your principal notes that due to upcoming budget limitations, they are considering scaling back the library's resource budget to fund a commercial, school-wide test-preparation software package.",
+                    citationUrl: "https://journals.sagepub.com/doi/abs/10.1177/0031721718767854",
+                    citationText: "Lance, K. C., & Kachel, D. E. (2018). Why school librarians matter: What years of research tells us. Phi Delta Kappan, 99(7), 15-20.",
+                    choices: [
+                        { text: "Put together an easy-to-read, data-driven report connecting past library collaboration metrics with positive student achievement, and request a slot to share it.", feedback: "Brilliant advocacy! Using data-backed narratives to protect library programs perfectly embodies professional leadership.", isOptimal: true },
+                        { text: "Accept the budget cuts quietly and trim library hours to show you are a team player during tough economic times.", feedback: "Remember, you are an advocate for your students' access to information. Sharing your program's tangible value is key!", isOptimal: false },
+                        { text: "Start an online community petition among parents to pressure the school administration.", feedback: "This route can sometimes create adversarial friction. Try collaborating internally with data first.", isOptimal: false },
+                        { text: "Ask teachers to donate older classroom library books to help fill the gaps.", feedback: "This downplays the value of a professionally curated, current library collection.", isOptimal: false }
+                    ]
+                },
+                {
+                    id: "D5-Remediation",
+                    domain: "D5",
+                    color: "#ec4899",
+                    standardRef: "Standard 5: Leadership, Advocacy, and Profession (Component 5.1)",
+                    title: "Practice Scenario: Professional Development Leadership",
+                    description: "The district introduces a new learning management system (LMS), and staff members are stressed, confused, and struggling to move their lesson files online.",
+                    citationUrl: "https://journals.sagepub.com/doi/abs/10.1177/0031721718767854",
+                    citationText: "Lance, K. C., & Kachel, D. E. (2018). Why school librarians matter: What years of research tells us. Phi Delta Kappan, 99(7), 15-20.",
+                    choices: [
+                        { text: "Host short 'Coffee & Tech' drop-in support clinics in the library morning space, sharing templates that connect library tools directly to the new LMS.", feedback: "Incredible leadership. Stepping up as a tech mentor stamps your status as an invaluable school hub.", isOptimal: true },
+                        { text: "Lock the office door and focus on cataloging books until the digital rollout confusion settles down.", feedback: "Hiding during school transitions detaches the library program from essential instructional leadership opportunities.", isOptimal: false },
+                        { text: "Send out a massive list of support links from the LMS vendor's default engineering user guide website.", feedback: "Staff members are already overwhelmed. They need human-centered scaffolding, not more links.", isOptimal: false },
+                        { text: "Tell teachers that you cannot help with the new software since the tech support office handles server accounts.", feedback: "While you don't manage accounts, you can facilitate pedagogical integration.", isOptimal: false }
+                    ]
+                }
+            ]
+        };
+
+        /**
+         * STREAMING_CHUNK:Building the simulation flow engine...
+         */
+        const SimulationEngine = {
+            domainSequence: ["D1", "D2", "D3", "D4", "D5"],
+            sequenceIndex: 0,
+            isCurrentScenarioRemedial: false,
+            masteredDomains: new Set(),
+
+            nodes: {
+                welcome: null,
+                scenario: null,
+                results: null,
+                stepIndicator: null,
+                remediationBadge: null,
+                title: null,
+                description: null,
+                citation: null,
+                choicesBox: null,
+                unlockedSpan: null,
+                statusText: null
+            },
+
+            /**
+             * Safely registers references to DOM elements
+             */
+            init() {
+                this.nodes.welcome = document.getElementById("welcome-card");
+                this.nodes.scenario = document.getElementById("scenario-card");
+                this.nodes.results = document.getElementById("results-card");
+                this.nodes.stepIndicator = document.getElementById("scenario-step-indicator");
+                this.nodes.remediationBadge = document.getElementById("remediation-badge");
+                this.nodes.title = document.getElementById("scenario-title");
+                this.nodes.description = document.getElementById("scenario-description");
+                this.nodes.citation = document.getElementById("scenario-citation");
+                this.nodes.choicesBox = document.getElementById("choices-container");
+                this.nodes.unlockedSpan = document.getElementById("unlocked-count");
+                this.nodes.statusText = document.getElementById("simulation-status-text");
+                
+                this.resetTrackedVisualElements();
+            },
+
+            /**
+             * Resets the active elements and resets SVG tracker nodes
+             */
+            resetTrackedVisualElements() {
+                this.masteredDomains.clear();
+                this.sequenceIndex = 0;
+                this.isCurrentScenarioRemedial = false;
+                
+                if (this.nodes.unlockedSpan) this.nodes.unlockedSpan.textContent = "0";
+                if (this.nodes.statusText) {
+                    this.nodes.statusText.textContent = "READY TO BEGIN";
+                    this.nodes.statusText.className = "text-amber-400 animate-pulse font-mono text-xs";
+                }
+
+                this.domainSequence.forEach(id => {
+                    const node = document.getElementById(`node-${id}`);
+                    const fill = document.getElementById(`fill-${id}`);
+                    const text = document.getElementById(`text-${id}-title`);
+                    const check = document.getElementById(`check-${id}`);
+
+                    if (node) node.setAttribute("opacity", "0.3");
+                    if (fill) fill.setAttribute("width", "0");
+                    if (text) text.setAttribute("fill", "#94a3b8");
+                    if (check) check.setAttribute("fill", "#475569");
+                });
+            },
+
+            /**
+             * Manages view panel swaps cleanly by modifying display CSS classes
+             */
+            updateLayoutVisibility(targetCard) {
+                if (!this.nodes.welcome) return; // Guard clause against uninitialized setups
+                
+                this.nodes.welcome.classList.add("hidden");
+                this.nodes.scenario.classList.add("hidden");
+                this.nodes.results.classList.add("hidden");
+
+                if (targetCard === "welcome") this.nodes.welcome.classList.remove("hidden");
+                if (targetCard === "scenario") this.nodes.scenario.classList.remove("hidden");
+                if (targetCard === "results") this.nodes.results.classList.remove("hidden");
+            },
+
+            /**
+             * Starts or restarts the simulation cycle
+             */
+            start() {
+                this.resetTrackedVisualElements();
+                this.updateLayoutVisibility("scenario");
+                this.renderActiveScenario();
+            },
+
+            /**
+             * Renders the current state's active scenario (Primary or Remedial)
+             */
+            renderActiveScenario() {
+                if (this.sequenceIndex >= this.domainSequence.length) {
+                    this.completeSimulationPipeline();
+                    return;
+                }
+
+                const currentDomainId = this.domainSequence[this.sequenceIndex];
+                const activePool = SCENARIOS_POOL[currentDomainId];
+                
+                // Select either primary object scenario or pull from the fallback remediation array index
+                const data = this.isCurrentScenarioRemedial ? activePool[1] : activePool[0];
+
+                this.nodes.stepIndicator.textContent = `Focus Area: Domain ${this.sequenceIndex + 1} of 5`;
+                
+                if (this.isCurrentScenarioRemedial) {
+                    this.nodes.remediationBadge.classList.remove("hidden");
+                } else {
+                    this.nodes.remediationBadge.classList.add("hidden");
+                }
+
+                this.nodes.title.textContent = data.title;
+                this.nodes.description.textContent = data.description;
+                this.nodes.citation.innerHTML = `<strong>${data.standardRef}</strong> — Research Base: <a href="${data.citationUrl}" target="_blank" class="text-blue-600 hover:text-blue-800 underline font-medium inline-flex items-center gap-0.5">${data.citationText} <span class="text-[10px]">↗</span></a>`;
+
+                this.nodes.choicesBox.innerHTML = "";
+
+                data.choices.forEach((choice) => {
+                    const button = document.createElement("button");
+                    button.type = "button";
+                    button.className = "w-full text-left p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-blue-400 active:bg-blue-50 transition-all text-sm font-medium text-slate-700 cursor-pointer shadow-sm flex gap-3 items-start group";
+                    button.innerHTML = `
+                        <div class="mt-0.5 min-w-[18px] h-[18px] rounded-full border border-slate-300 group-hover:border-blue-500 bg-white flex items-center justify-center transition-all">
+                            <div class="w-2 h-2 rounded-full bg-blue-600 opacity-0 group-hover:opacity-40 transition-all"></div>
+                        </div>
+                        <span class="flex-1 leading-relaxed font-normal">${choice.text}</span>
+                    `;
+                    button.onclick = () => this.handleUserSelectionChoice(choice, data);
+                    this.nodes.choicesBox.appendChild(button);
+                });
+
+                this.nodes.statusText.textContent = `EXPLORING DOMAIN ${currentDomainId}`;
+                this.nodes.statusText.className = "text-blue-400 font-mono text-xs tracking-wider";
+            },
+
+            /**
+             * Evaluates correctness, updates UI tracking dashboard, or triggers remedial pathing
+             */
+            handleUserSelectionChoice(choice, scenarioData) {
+                if (choice.isOptimal) {
+                    alert(`🟢 Excellent Approach!\n\n${choice.feedback}`);
+                    
+                    // Award points and animate the progress bar tracker
+                    this.activateDomainTrackerBoardNode(scenarioData.domain, scenarioData.color);
+                    
+                    // Move to the next standard domain and clear the remedial modifier flag
+                    this.sequenceIndex++;
+                    this.isCurrentScenarioRemedial = false;
+                } else {
+                    alert(`💡 Alternative Pathway Thought\n\n${choice.feedback}\n\nLet's pivot and try a fresh scenario for this domain framework to build up confidence!`);
+                    
+                    // Set remedial modifier flag to true - causing the engine to pull the backup case file
+                    this.isCurrentScenarioRemedial = true;
+                }
+                
+                this.renderActiveScenario();
+            },
+
+            /**
+             * Drives updates of tracker nodes on the SVG map interface
+             */
+            activateDomainTrackerBoardNode(domainId, hexColor) {
+                this.masteredDomains.add(domainId);
+                this.nodes.unlockedSpan.textContent = this.masteredDomains.size;
+
+                const node = document.getElementById(`node-${domainId}`);
+                const fill = document.getElementById(`fill-${domainId}`);
+                const text = document.getElementById(`text-${domainId}-title`);
+                const check = document.getElementById(`check-${domainId}`);
+
+                if (node) node.setAttribute("opacity", "1.0");
+                if (fill) fill.setAttribute("width", "370"); 
+                if (text) text.setAttribute("fill", "#ffffff");
+                if (check) check.setAttribute("fill", "#10b981"); 
+            },
+
+            /**
+             * Completes the simulation pipeline loop cleanly
+             */
+            completeSimulationPipeline() {
+                this.updateLayoutVisibility("results");
+                this.nodes.statusText.textContent = "ALL DOMAINS MASTERED";
+                this.nodes.statusText.className = "text-emerald-400 font-mono font-bold text-xs";
+            },
+
+            /**
+             * Re-initializes state variables back to baseline values
+             */
+            reset() {
+                this.updateLayoutVisibility("welcome");
+                this.resetTrackedVisualElements();
+            }
+        };
+
+        // Bind to global window context so inline element handlers can securely target the namespace
+        window.SimulationEngine = SimulationEngine;
+
+        // Perform loading check to bypass timing differences in interactive sandboxes
+        if (document.readyState === "complete" || document.readyState === "interactive") {
+            SimulationEngine.init();
+        } else {
+            document.addEventListener("DOMContentLoaded", () => {
+                SimulationEngine.init();
+            });
+        }
+    </script>
+</body>
+</html>
