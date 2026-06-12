@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APA Error Hunter Flashcards</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --success: #27ae60;
+            --error: #c0392b;
+            --bg: #f8f9fa;
+            --card-front: #ffffff;
+            --card-back: #e8f8f5;
+            --text: #333333;
+            --link: #2980b9;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .instructions {
+            background-color: #eef2f7;
+            padding: 15px;
+            border-left: 5px solid var(--primary);
+            border-radius: 4px;
+            margin-bottom: 40px;
+        }
+
+        /* Grid Layout */
+        .quiz-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 35px;
+        }
+
+        /* Taller 3D Card Rigging to comfortably accommodate text contents */
+        .card-perspective {
+            perspective: 1500px;
+            min-height: 440px; /* Increased from 320px to hold explanations cleanly */
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            min-height: 440px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Explicit Flip Class */
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            min-height: 440px;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            box-sizing: border-box;
+            padding: 25px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-y: auto; /* Adds a safety scrolling boundary for micro viewports */
+        }
+
+        /* Front Card Setup */
+        .card-front {
+            background: var(--card-front);
+            border-top: 5px solid var(--primary);
+        }
+
+        /* Back Card Setup */
+        .card-back {
+            background: var(--card-back);
+            border-top: 5px solid var(--success);
+            transform: rotateY(180deg);
+        }
+
+        .source-type {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1.2px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .citation-title {
+            margin: 0 0 15px 0;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        /* Citation Container Blocks */
+        .citation-box {
+            background-color: #f1f2f6;
+            padding: 18px 20px;
+            border-radius: 6px;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin: 10px 0;
+            word-wrap: break-word;
+        }
+
+        .card-back .citation-box {
+            background-color: #ffffff;
+            border-left: 5px solid var(--success);
+        }
+
+        /* Interactive Target Selectors on Front */
+        .target {
+            padding: 2px 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 2px dashed #95a5a6;
+        }
+
+        .target:hover {
+            background-color: #ffeaa7;
+            border-bottom-color: #f39c12;
+        }
+
+        .italic {
+            font-style: italic;
+        }
+
+        /* Status & Feedback Styling */
+        .feedback-bar {
+            font-weight: 500;
+            font-size: 0.9rem;
+            min-height: 24px;
+            margin-top: 15px;
+            transition: color 0.2s ease;
+        }
+        
+        .feedback-bar.neutral { color: var(--link); }
+        .feedback-bar.wrong { color: var(--error); font-weight: bold; }
+
+        .explanation-block {
+            font-size: 0.95rem;
+            margin: 15px 0;
+            color: #2c3e50;
+        }
+
+        .reference-link {
+            display: inline-block;
+            color: var(--link);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .reference-link:hover {
+            text-decoration: underline;
+        }
+
+        .reset-btn {
+            background: #7f8c8d;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: #616a6b;
+        }
+
+        .bottom-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 10px;
+        }
+
+        /* CSS Shake Animation for Incorrect Selections */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        .shake-card {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        /* Confetti Canvas Container */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 2000;
+            overflow: hidden;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            opacity: 1;
+            transition: transform 1s ease-out, opacity 1s ease-out;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>APA Interactive Error Hunter</h1>
+        <p>Master APA 7th Edition formatting mechanics. Read the flawed citations on the cards below and click directly on the error segment!</p>
+    </header>
+
+    <div class="instructions">
+        <strong>🎯 Objective:</strong> Hover over the broken segments inside the citations. Clicking on an area that is formatted correctly will trigger a notice. Find the true error breaking APA rules to flip the card and clear the stage!
+    </div>
+
+    <div class="quiz-grid" id="flashcard-container"></div>
+</div>
+
+<div class="confetti-container" id="confetti-box"></div>
+
+<script>
+const citationDataset = [
+    {
+        id: 1,
+        type: "Journal Article (Two Authors)",
+        title: "The Case of the Italicized Comma",
+        html: `<span class="target" data-correct="false">Smith, J., & Jones, M.</span> (2020). <span class="target" data-correct="false">The effects of sleep deprivation on cognitive performance.</span> <span class="target italic" data-correct="true">Journal of Applied Psychology,</span> <span class="target" data-correct="true">15(3),</span> 245-256. https://doi.org/10.1037/apl0000123`,
+        explanation: "<strong>Two Errors Corrected on Back:</strong><br>1. <em>Punctuation Style:</em> The comma trailing behind an italicized journal title must sit inside standard plain font profile styling.<br>2. <em>Issue Range Designations:</em> Issue numbers like '(3)' must remain standard text, while its volume counter '15' remains italicized.",
+        accurate: "Smith, J., & Jones, M. (2020). The effects of sleep deprivation on cognitive performance. <em>Journal of Applied Psychology</em>, <em>15</em>(3), 245–256. https://doi.org/10.1037/apl0000123",
+        guideUrl: "https://owl.purdue.edu/owl/research_and_citation/apa_style/apa_formatting_and_style_guide/general_format.html"
+    },
+    {
+        id: 2,
+        type: "Chapter in an Edited Book",
+        title: "The Cluttered Editor Field",
+        html: `Miller, R. (2018). <span class="target" data-correct="false">Cognitive development in childhood.</span> In <span class="target" data-correct="true">Handbook of Child Psychology by John Silva (Eds.),</span> (pp. 45-67). Academic Press.`,
+        explanation: "<strong>Errors Corrected on Back:</strong><br>1. <em>Editor Arrays:</em> Editors place behind 'In' strings with initials ahead of last names ('J. Silva'). The injection of 'by' is an invalid layout structure.<br>2. <em>Abbreviation Flags:</em> Address single editors as '(Ed.)', not multi-counter variations '(Eds.)'.",
+        accurate: "Miller, R. (2018). Cognitive development in childhood. In J. Silva (Ed.), <em>Handbook of child psychology</em> (pp. 45–67). Academic Press.",
+        guideUrl: "https://owl.purdue.edu/owl/research_and_citation/apa_style/apa_formatting_and_style_guide/general_format.html"
+    },
+    {
+        id: 3,
+        type: "Entire Authored Book",
+        title: "The Legacy Location Trap",
+        html: `<span class="target" data-correct="true">Davis, Alan.</span> (2021). <span class="target italic" data-correct="true">Introduction to Modern Psychology.</span> <span class="target" data-correct="true">New York, NY:</span> Penguin Books.`,
+        explanation: "<strong>Errors Corrected on Back:</strong><br>1. <em>Author Handling:</em> Names collapse cleanly into dynamic initial scopes ('A.').<br>2. <em>Sentence Case Rules:</em> Avoid capitalizing downstream words inside general book title tracks.<br>3. <em>City Drop:</em> APA 7th Edition removed tracking labels mapping publisher distribution city centers entirely.",
+        accurate: "Davis, A. (2021). <em>Introduction to modern psychology</em>. Penguin Books.",
+        guideUrl: "https://owl.purdue.edu/owl/research_and_citation/apa_style/apa_formatting_and_style_guide/general_format.html"
+    },
+    {
+        id: 4,
+        type: "Webpage from a Website (Individual Author)",
+        title: "The Outdated Retrieval Phrase",
+        html: `Thompson, G. (2023, May 14). <span class="target" data-correct="true">Understanding Climate Change.</span> National Geographic. <span class="target" data-correct="true">Retrieved from</span> https://www.nationalgeographic.com/environment/article/climate-change`,
+        explanation: "<strong>Errors Corrected on Back:</strong><br>1. <em>Webpage Titles:</em> Standalone website articles shift to italic profile paths and follow sentence case formatting loops.<br>2. <em>Intro Prefixes:</em> Retain standard tracking URL locations natively; omit historic introductory phrase parameters like 'Retrieved from'.",
+        accurate: "Thompson, G. (2023, May 14). <em>Understanding climate change</em>. National Geographic. https://www.nationalgeographic.com/environment/article/climate-change",
+        guideUrl: "https://owl.purdue.edu/owl/research_and_citation/apa_style/apa_formatting_and_style_guide/general_format.html"
+    },
+    {
+        id: 5,
+        type: "Webpage from a Website (Group Author)",
+        title: "The Redundant Publisher Echo",
+        html: `<span class="target" data-correct="false">World Health Organization.</span> (2022). <span class="target" data-correct="true">Mental health in the workplace.</span> <span class="target" data-correct="true">World Health Organization.</span> https://www.who.int/news-room/fact-sheets/detail/mental-health-at-work`,
+        explanation: "<strong>Errors Corrected on Back:</strong><br>1. <em>Italics:</em> The main webpage title must use italic styling rules.<br>2. <em>Echo Elimination:</em> When data author mappings match system website platform names identically, wipe out the second name block entry to clear up text bloat.",
+        accurate: "World Health Organization. (2022). <em>Mental health in the workplace</em>. https://www.who.int/news-room/fact-sheets/detail/mental-health-at-work",
+        guideUrl: "https://owl.purdue.edu/owl/research_and_citation/apa_style/apa_formatting_and_style_guide/general_format.html"
+    },
+    {
+        id: 6,
+        type: "Journal Article (Three to Twenty Authors)",
+        title: "The Misplaced Et Al.",
+        html: `Green, A., Black, B., White, C., & Brown, D. (2019). Studies in color theory. <span class="target italic" data-correct="false">Journal of Vision,</span> 8(2), <span class="target" data-correct="true">et al.</span> 12-15.`,
+        explanation: "<strong>Errors Corrected on Back:</strong><br>1. <em>Reference Completeness:</em> 'Et al.' syntax runs strictly across document internal paragraphs. Reference registries spell out all contributor lines up to 20 names.<br>2. <em>DOI Tracking:</em> Journals leverage DOI link strings directly over traditional page listings.",
+        accurate: "Green, A., Black, B., White, C., & Brown, D. (2019). Studies in color theory. <em>Journal of Vision</em>, <em>8</em>(2), 12–15. https://doi.org/10.1167/8.2.12",
+        guideUrl: "https://owl.purdue.edu/owl/research_and_citation/apa_style/apa_formatting_and_style_guide/general_format.html"
+    },
+    {
+        id: 7,
+        type: "Social Media Post (Instagram)",
+        title: "The Fragmented Hyperlink",
+        html: `NASA [@nasa]. (2024, January 5). <span class="target" data-correct="true">A stunning view of the James Webb telescope's latest image.</span> Instagram. <span class="target" data-correct="true">www.instagram.com/p/abc123xyz</span>`,
+        explanation: "<strong>Errors Corrected on Back:</strong><br>1. <em>Social Titles:</em> Italicize post description texts when serving as resource titles.<br>2. <em>Media Formats:</em> Add description metadata tags like '[Photograph]'.<br>3. <em>Protocol Checks:</em> Hyperlinks require valid 'https://' prefixes to maintain web document standards.",
+        accurate: "NASA [@nasa]. (2024, January 5). <em>A stunning view of the James Webb telescope's latest image</em> [Photograph]. Instagram. https://www.instagram.com/p/abc123xyz",
+        guideUrl: "https://owl.purdue.edu/owl/research_and_citation/apa_style/apa_formatting_and_style_guide/general_format.html"
+    },
+    {
+        id: 8,
+        type: "Journal Article (Missing DOI / Metric Abbreviations)",
+        title: "The Explicit Labeling Mistake",
+        html: `Roberts, L. (2017). Memory retention techniques. <span class="target italic" data-correct="false">Educational Review,</span> <span class="target" data-correct="true">Vol. 44, No. 1, pp. 88-95.</span>`,
+        explanation: "<strong>Errors Corrected on Back:</strong> Clear away manual placeholder flags such as 'Vol.', 'No.', or 'pp.' inside academic journals entirely. The structural layout sequence handles the separation context natively.",
+        accurate: "Roberts, L. (2017). Memory retention techniques. <em>Educational Review</em>, <em>44</em>(1), 88–95.",
+        guideUrl: "https://owl.purdue.edu/owl/research_and_citation/apa_style/apa_formatting_and_style_guide/general_format.html"
+    },
+    {
+        id: 9,
+        type: "Magazine Article",
+        title: "The Missing Calendar Date",
+        html: `Gladwell, M. <span class="target" data-correct="true">(2021).</span> The power of intuition. <span class="target italic" data-correct="true">The New Yorker.</span> https://www.newyorker.com/magazine/2021/the-power-of-intuition`,
+        explanation: "<strong>Errors Corrected on Back:</strong><br>1. <em>Precise Chronology:</em> Magazine prints use granular serial parameters. Log the exact calendar date elements (Year, Month Day).<br>2. <em>Punctuation Italics:</em> Periods after titles sit outside the italic profile wrapper paths.",
+        accurate: "Gladwell, M. (2021, March 8). The power of intuition. <em>The New Yorker</em>. https://www.newyorker.com/magazine/2021/the-power-of-intuition",
+        guideUrl: "https://owl.purdue.edu/owl/research_and_citation/apa_style/apa_formatting_and_style_guide/general_format.html"
+    },
+    {
+        id: 10,
+        type: "Personal Interview",
+        title: "The Unrecoverable Reference Data Trap",
+        html: `<span class="target" data-correct="true">Jackson, P. (2025, August 12). Personal Interview on Leadership.</span>`,
+        explanation: "<strong>Errors Corrected on Back:</strong> Conversations or emails cannot be reviewed by outside audiences. **Do not put unrecoverable interactions into your final reference lists**. Document them as in-text references only.",
+        accurate: "<em>Do not compile inside reference lists. Cite in-text only:</em> ...according to P. Jackson (personal communication, August 12, 2025).",
+        guideUrl: "https://owl.purdue.edu/owl/research_and_citation/apa_style/apa_formatting_and_style_guide/general_format.html"
+    }
+];
+
+function buildInteractiveCards() {
+    const container = document.getElementById('flashcard-container');
+    
+    citationDataset.forEach((data, index) => {
+        const perspectiveBox = document.createElement('div');
+        perspectiveBox.className = 'card-perspective';
+        
+        perspectiveBox.innerHTML = `
+            <div class="flashcard" id="card-${data.id}">
+                <div class="card-face card-front">
+                    <div>
+                        <div class="source-type">${data.type}</div>
+                        <h3 class="citation-title">${index + 1}. ${data.title}</h3>
+                        <div class="citation-box">${data.html}</div>
+                    </div>
+                    <div class="feedback-bar neutral" id="feedback-${data.id}">🕵️ Target the segment that breaks APA 7 rules...</div>
+                </div>
+                
+                <div class="card-face card-back">
+                    <div>
+                        <div class="source-type">${data.type}</div>
+                        <h3 class="citation-title">✨ Perfect APA Formatting Layout</h3>
+                        <div class="citation-box">${data.accurate}</div>
+                        <div class="explanation-block">${data.explanation}</div>
+                    </div>
+                    <div class="bottom-row">
+                        <a href="${data.guideUrl}" target="_blank" class="reference-link">📖 Verify on Purdue OWL Guide Guidelines ↗</a>
+                        <button class="reset-btn" onclick="flipBack(${data.id})">🔄 Reset Card</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.appendChild(perspectiveBox);
+    });
+
+    // Add click listeners to target selection segments on the front of the cards
+    document.querySelectorAll('.target').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.stopPropagation(); // Stop parent container action bubbles
+            
+            const cardNode = this.closest('.flashcard');
+            const cardId = parseInt(cardNode.id.split('-')[1]);
+            const feedbackText = document.getElementById(`feedback-${cardId}`);
+            const isCorrectError = this.getAttribute('data-correct') === 'true';
+
+            if (isCorrectError) {
+                feedbackText.className = "feedback-bar";
+                feedbackText.innerText = "🎉 Target found!";
+                cardNode.classList.add('flipped');
+                launchConfettiCanyon();
+            } else {
+                // Apply shake error animation to prompt student tracking adjustments
+                cardNode.classList.remove('shake-card');
+                void cardNode.offsetWidth; // Force element layout rendering engine update
+                cardNode.classList.add('shake-card');
+                
+                feedbackText.className = "feedback-bar wrong";
+                feedbackText.innerText = "❌ Incorrect Selection. That segment follows valid APA guidelines!";
+                
+                setTimeout(() => cardNode.classList.remove('shake-card'), 400);
+            }
+        });
+    });
+}
+
+function flipBack(id) {
+    const cardNode = document.getElementById(`card-${id}`);
+    const feedbackText = document.getElementById(`feedback-${id}`);
+    
+    cardNode.classList.remove('flipped');
+    feedbackText.className = "feedback-bar neutral";
+    feedbackText.innerText = "🕵️ Target the segment that breaks APA 7 rules...";
+}
+
+/* Coordinate-Agnostic JavaScript Confetti Engine */
+function launchConfettiCanyon() {
+    const box = document.getElementById('confetti-box');
+    const colors = ['#f1c40f', '#e67e22', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6'];
+    
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    for (let i = 0; i < 70; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti-piece';
+        
+        const isLeftLaunch = Math.random() > 0.5;
+        const startX = isLeftLaunch ? (viewportWidth * 0.05) : (viewportWidth * 0.95);
+        const startY = viewportHeight + 15;
+        
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.width = (Math.random() * 8 + 6) + 'px';
+        confetti.style.height = (Math.random() * 8 + 6) + 'px';
+        confetti.style.left = startX + 'px';
+        confetti.style.top = startY + 'px';
+        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0px';
+
+        box.appendChild(confetti);
+
+        const targetX = startX + (isLeftLaunch ? 1 : -1) * (Math.random() * (viewportWidth * 0.45) + 40);
+        const targetY = Math.random() * (viewportHeight * 0.5) + (viewportHeight * 0.1); 
+        const spin = Math.random() * 1440 - 720;
+
+        confetti.offsetHeight; // Force reflow rendering update
+
+        confetti.style.transform = `translate(${targetX - startX}px, ${targetY - startY}px) rotate(${spin}deg)`;
+        confetti.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        
+        setTimeout(() => {
+            confetti.style.transition = 'transform 1.1s ease-in, opacity 0.9s ease-in';
+            confetti.style.transform = `translate(${targetX - startX + (Math.random() * 120 - 60)}px, ${viewportHeight + 40}px) rotate(${spin * 1.4}deg)`;
+            confetti.style.opacity = '0';
+        }, 750);
+
+        setTimeout(() => {
+            confetti.remove();
+        }, 1900);
+    }
+}
+
+window.onload = buildInteractiveCards;
+</script>
+
+</body>
+</html>
